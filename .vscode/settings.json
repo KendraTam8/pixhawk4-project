@@ -6,6 +6,6 @@
         "*.ino": "cpp"
     },
     "particle.targetDevice": "potato",
-    "particle.firmwareVersion": "1.1.0",
+    "particle.firmwareVersion": "1.4.4",
     "particle.targetPlatform": "boron"
 }
