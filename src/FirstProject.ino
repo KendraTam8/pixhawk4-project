@@ -16,6 +16,9 @@ int ledToggle(String command); // Forward declaration
 
 // setup() runs once, when the device is first turned on.
 void setup() {
+    // Set the keep-alive value for 3rd party SIM card here
+    Particle.keepAlive(120);
+
 	// This is here to allow for debugging using the USB serial port
     Serial.begin();
 
