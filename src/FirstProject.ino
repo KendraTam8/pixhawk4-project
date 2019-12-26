@@ -7,12 +7,12 @@
 
 int led1 = D6;
 //int led2 = D7;
-
-int photosensor = A0; // This is where your photoresistor or phototransistor is plugged in. The other side goes to the "power" pin (below).
-int analogvalue; // Here we are declaring the integer variable analogvalue, which we will use later to store the value of the photoresistor or phototransistor.
+int incomingByte;
+//int photosensor = A0; // This is where your photoresistor or phototransistor is plugged in. The other side goes to the "power" pin (below).
+int maxlimit = 64;
 
 int ledToggle(String command); // Forward declaration
-int ledToggle(String command); // Forward declaration
+String getValue(String command);
 
 // setup() runs once, when the device is first turned on.
 void setup() {
@@ -21,6 +21,8 @@ void setup() {
 
 	// This is here to allow for debugging using the USB serial port
     Serial.begin();
+    Serial1.begin(9600);
+
 
 	// Put initialization like pinMode and begin functions here.
 	pinMode(led1, OUTPUT);
@@ -28,12 +30,14 @@ void setup() {
 
 	digitalWrite(led1, HIGH);
 	 // We are going to declare a Particle.variable() here so that we can access the value of the photosensor from the cloud.
-    Particle.variable("analogvalue", &analogvalue, INT);
+    Particle.variable("incomingByte", &incomingByte, INT);
     // This is saying that when we ask the cloud for "analogvalue", this will reference the variable analogvalue in this app, which is an integer variable.
 
 	// We are also going to declare a Particle.function so that we can turn the LED on and off from the cloud.
 	Particle.function("led",ledToggle);
 	// This is saying that when we ask the cloud for the function "led", it will employ the function ledToggle() from this app.
+
+    Particle.function("retrieve",getValue);
 
 	// For good measure, let's also make sure both LEDs are off when we start:
 	// digitalWrite(led1, LOW);
@@ -61,15 +65,7 @@ void loop() {
 	// And repeat!
 	*/
 
-	// check to see what the value of the photoresistor or phototransistor is and store it in the int variable analogvalue
-    analogvalue = analogRead(photosensor);
-
-    // This prints the value to the USB debugging serial port (for optional debugging purposes)
-    Serial.printlnf("%d", analogvalue);
-
-    // This delay is just to prevent overflowing the serial buffer, plus we really don't need to read the sensor more than
-    // 10 times per second (100 millisecond delay)
-    delay(100);
+	
 }
 
 
@@ -98,4 +94,24 @@ int ledToggle(String command) {
     else {
         return -1;
     }
+}
+
+String getValue(String command) {
+    if (command == "yes") {
+        String word = "";
+        int count = 0;
+        int incomingByte = Serial1.read();
+        char letter = incomingByte;
+
+        // check to see what the value of the photoresistor or phototransistor is and store it in the int variable analogvalue
+        while (Serial1.available() > 0 && letter != '\n' || count < maxlimit) {
+            count++;
+            word += letter;
+            incomingByte = Serial1.read();
+            letter = incomingByte;
+        }
+        Serial.println (word);
+        return word; 
+    }
+    return "";
 }
