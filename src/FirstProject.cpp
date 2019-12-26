@@ -16,15 +16,12 @@ void loop();
 #line 8 "c:/Users/kendr/OneDrive/Documents/GitHub/Particle/FirstProject/src/FirstProject.ino"
 int led1 = D6;
 //int led2 = D7;
-
+String word;
 //int photosensor = A0; // This is where your photoresistor or phototransistor is plugged in. The other side goes to the "power" pin (below).
-int incomingByte; // Here we are declaring the integer variable analogvalue, which we will use later to store the value of the photoresistor or phototransistor.
-String word = "";
 int maxlimit = 64;
-int count = 0;
 
 int ledToggle(String command); // Forward declaration
-int getNumber(String command);
+int getValue(String command);
 
 // setup() runs once, when the device is first turned on.
 void setup() {
@@ -41,15 +38,15 @@ void setup() {
 	//pinMode(led2, OUTPUT);
 
 	digitalWrite(led1, HIGH);
-	 // We are going to declare a Particle.variable() here so that we can access the value of the photosensor from the cloud.
-    Particle.variable("incomingByte", &incomingByte, INT);
+	// We are going to declare a Particle.variable() here so that we can access the value of the photosensor from the cloud.
+    Particle.variable("returnValue", word);
     // This is saying that when we ask the cloud for "analogvalue", this will reference the variable analogvalue in this app, which is an integer variable.
 
 	// We are also going to declare a Particle.function so that we can turn the LED on and off from the cloud.
 	Particle.function("led",ledToggle);
 	// This is saying that when we ask the cloud for the function "led", it will employ the function ledToggle() from this app.
 
-    //Particle.function("getNum",getNumber);
+    Particle.function("retrieve",getValue);
 
 	// For good measure, let's also make sure both LEDs are off when we start:
 	// digitalWrite(led1, LOW);
@@ -77,25 +74,7 @@ void loop() {
 	// And repeat!
 	*/
 
-	// check to see what the value of the photoresistor or phototransistor is and store it in the int variable analogvalue
-    if (Serial1.available() > 0) {
-        incomingByte = Serial1.read();
-        char letter = incomingByte;
-
-        if (letter == '\n' || count >= maxlimit) {
-            Serial.println (word);
-            word = "";
-            count = 0;
-        }
-        else {
-            count++;
-            word += letter;
-        }
-
-        // This delay is just to prevent overflowing the serial buffer, plus we really don't need to read the sensor more than
-        delay(10);
-    }
-
+	
 }
 
 
@@ -126,8 +105,24 @@ int ledToggle(String command) {
     }
 }
 
-// int getNumber(String command) {
-    // if (command == "yes") {
-    //     return 1;
-    // }
-// }
+int getValue(String command) {
+    if (command == "go") {
+        String word = "";
+        int count = 0;
+        int incomingByte = Serial1.read();
+        char letter = incomingByte;
+
+        // check to see what the value of the photoresistor or phototransistor is and store it in the int variable analogvalue
+        while (Serial1.available() > 0 && letter != '\n' && count < maxlimit) {
+            count++;
+            word += letter;
+            incomingByte = Serial1.read();
+            letter = incomingByte;
+        }
+        Serial.println (word);
+        return 1; 
+    }
+    else {
+        return -1;
+    }
+}

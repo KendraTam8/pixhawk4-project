@@ -7,12 +7,12 @@
 
 int led1 = D6;
 //int led2 = D7;
-int incomingByte;
+String word;
 //int photosensor = A0; // This is where your photoresistor or phototransistor is plugged in. The other side goes to the "power" pin (below).
 int maxlimit = 64;
 
 int ledToggle(String command); // Forward declaration
-String getValue(String command);
+int getValue(String command);
 
 // setup() runs once, when the device is first turned on.
 void setup() {
@@ -29,8 +29,8 @@ void setup() {
 	//pinMode(led2, OUTPUT);
 
 	digitalWrite(led1, HIGH);
-	 // We are going to declare a Particle.variable() here so that we can access the value of the photosensor from the cloud.
-    Particle.variable("incomingByte", &incomingByte, INT);
+	// We are going to declare a Particle.variable() here so that we can access the value of the photosensor from the cloud.
+    Particle.variable("returnValue", word);
     // This is saying that when we ask the cloud for "analogvalue", this will reference the variable analogvalue in this app, which is an integer variable.
 
 	// We are also going to declare a Particle.function so that we can turn the LED on and off from the cloud.
@@ -96,22 +96,24 @@ int ledToggle(String command) {
     }
 }
 
-String getValue(String command) {
-    if (command == "yes") {
+int getValue(String command) {
+    if (command == "go") {
         String word = "";
         int count = 0;
         int incomingByte = Serial1.read();
         char letter = incomingByte;
 
         // check to see what the value of the photoresistor or phototransistor is and store it in the int variable analogvalue
-        while (Serial1.available() > 0 && letter != '\n' || count < maxlimit) {
+        while (Serial1.available() > 0 && letter != '\n' && count < maxlimit) {
             count++;
             word += letter;
             incomingByte = Serial1.read();
             letter = incomingByte;
         }
         Serial.println (word);
-        return word; 
+        return 1; 
     }
-    return "";
+    else {
+        return -1;
+    }
 }
