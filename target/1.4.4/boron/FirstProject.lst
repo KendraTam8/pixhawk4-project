@@ -31,11 +31,11 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
  13 .debug_macro  00033ec6  00000000  00000000  0011cfce  2**0
                   CONTENTS, READONLY, DEBUGGING
- 14 .debug_line   000272f4  00000000  00000000  00150e94  2**0
+ 14 .debug_line   000272fb  00000000  00000000  00150e94  2**0
                   CONTENTS, READONLY, DEBUGGING
- 15 .debug_str    00101308  00000000  00000000  00178188  2**0
+ 15 .debug_str    00101308  00000000  00000000  0017818f  2**0
                   CONTENTS, READONLY, DEBUGGING
- 16 .debug_frame  0000cbc8  00000000  00000000  00279490  2**2
+ 16 .debug_frame  0000cbc8  00000000  00000000  00279498  2**2
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -198,11 +198,11 @@ void __cxa_guard_release (__guard *g) {*(char *)g = 1;};
 	...
 
 000d40b4 <_Z9ledToggle6String>:
+}
 
 
 // We're going to have a super cool function now that gets called when a matching API request is sent
 // This is the ledToggle function we registered to the "led" Particle.function earlier.
-
 int ledToggle(String command) {
    d40b4:	b538      	push	{r3, r4, r5, lr}
 	operator StringIfHelperType() const { return buffer ? &String::StringIfHelper : 0; }
@@ -305,9 +305,9 @@ void setup() {
     {
         particle::protocol::connection_properties_t conn_prop = {0};
    d410a:	9300      	str	r3, [sp, #0]
+
     Serial.begin();
     Serial1.begin(9600);
-
 
 	// Put initialization like pinMode and begin functions here.
 	pinMode(led1, OUTPUT);
@@ -320,11 +320,11 @@ void setup() {
                                                sec * 1000, &conn_prop, nullptr),
                  (void)0);
    d4114:	f000 fa5c 	bl	d45d0 <spark_set_connection_property>
+// setup() runs once, when the device is first turned on.
 void setup() {
     // Set the keep-alive value for 3rd party SIM card here
     Particle.keepAlive(120);
 
-	// This is here to allow for debugging using the USB serial port
     Serial.begin();
    d4118:	f000 fdbc 	bl	d4c94 <_Z16_fetch_usbserialv>
    d411c:	f44f 5116 	mov.w	r1, #9600	; 0x2580
@@ -334,14 +334,11 @@ void setup() {
    d4128:	f44f 5116 	mov.w	r1, #9600	; 0x2580
    d412c:	f000 fe80 	bl	d4e30 <_ZN11USARTSerial5beginEm>
 
-
 	// Put initialization like pinMode and begin functions here.
 	pinMode(led1, OUTPUT);
    d4130:	4621      	mov	r1, r4
    d4132:	8830      	ldrh	r0, [r6, #0]
    d4134:	f001 f864 	bl	d5200 <pinMode>
-	//pinMode(led2, OUTPUT);
-
 	digitalWrite(led1, HIGH);
    d4138:	4621      	mov	r1, r4
    d413a:	8830      	ldrh	r0, [r6, #0]
@@ -379,11 +376,9 @@ void setup() {
    d4156:	4909      	ldr	r1, [pc, #36]	; (d417c <setup+0x80>)
    d4158:	4809      	ldr	r0, [pc, #36]	; (d4180 <setup+0x84>)
    d415a:	f000 fcaf 	bl	d4abc <_ZN10CloudClass17register_functionEPFiPvPKcS0_ES0_S2_>
-    //Particle.function("retrieve",getValue);
-
-	// For good measure, let's also make sure both LEDs are off when we start:
-	// digitalWrite(led1, LOW);
-	// digitalWrite(led2, LOW);
+	
+    Particle.variable("returnValue", value);
+	Particle.function("led",ledToggle);
 	}
    d415e:	b002      	add	sp, #8
    d4160:	bd70      	pop	{r4, r5, r6, pc}
@@ -402,11 +397,6 @@ void setup() {
 // loop() runs over and over again, as quickly as it can execute.
 void loop() {
    d4184:	b538      	push	{r3, r4, r5, lr}
-
-	// And repeat!
-	*/
-
-    // check to see what the value of the photoresistor or phototransistor is and store it in the int variable analogvalue
     if (Serial1.available() > 0) {
    d4186:	f000 fe59 	bl	d4e3c <_Z22__fetch_global_Serial1v>
    d418a:	6803      	ldr	r3, [r0, #0]
@@ -423,10 +413,10 @@ void loop() {
    d41a0:	4b14      	ldr	r3, [pc, #80]	; (d41f4 <loop+0x70>)
         letter = incomingByte;
    d41a2:	b2c1      	uxtb	r1, r0
-	// And repeat!
-	*/
+	}
 
-    // check to see what the value of the photoresistor or phototransistor is and store it in the int variable analogvalue
+// loop() runs over and over again, as quickly as it can execute.
+void loop() {
     if (Serial1.available() > 0) {
         incomingByte = Serial1.read();
    d41a4:	6018      	str	r0, [r3, #0]
@@ -434,9 +424,9 @@ void loop() {
    d41a6:	4b14      	ldr	r3, [pc, #80]	; (d41f8 <loop+0x74>)
         if (letter == '\n' || count >= maxlimit) {
    d41a8:	290a      	cmp	r1, #10
-	*/
 
-    // check to see what the value of the photoresistor or phototransistor is and store it in the int variable analogvalue
+// loop() runs over and over again, as quickly as it can execute.
+void loop() {
     if (Serial1.available() > 0) {
         incomingByte = Serial1.read();
         letter = incomingByte;
@@ -509,11 +499,11 @@ void loop() {
         return -1;
     }
    d420c:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ * Date: December 23, 2019
+ */
 
 int led1 = D6;
-//int led2 = D7;
 
-//int photosensor = A0; // This is where your photoresistor or phototransistor is plugged in. The other side goes to the "power" pin (below).
 String word = "";
    d420e:	4f0d      	ldr	r7, [pc, #52]	; (d4244 <_GLOBAL__sub_I_led1+0x38>)
    d4210:	4c0d      	ldr	r4, [pc, #52]	; (d4248 <_GLOBAL__sub_I_led1+0x3c>)
@@ -532,11 +522,11 @@ static Hal_Pin_Info* PIN_MAP = HAL_Pin_Map();
    d4222:	4620      	mov	r0, r4
 String value = "";
    d4224:	4c0b      	ldr	r4, [pc, #44]	; (d4254 <_GLOBAL__sub_I_led1+0x48>)
+ * Date: December 23, 2019
+ */
 
 int led1 = D6;
-//int led2 = D7;
 
-//int photosensor = A0; // This is where your photoresistor or phototransistor is plugged in. The other side goes to the "power" pin (below).
 String word = "";
    d4226:	4632      	mov	r2, r6
    d4228:	4629      	mov	r1, r5
@@ -554,10 +544,10 @@ String value = "";
         return -1;
     }
    d423c:	e8bd 40f8 	ldmia.w	sp!, {r3, r4, r5, r6, r7, lr}
-int led1 = D6;
-//int led2 = D7;
+ */
 
-//int photosensor = A0; // This is where your photoresistor or phototransistor is plugged in. The other side goes to the "power" pin (below).
+int led1 = D6;
+
 String word = "";
 String value = "";
    d4240:	f001 b84a 	b.w	d52d8 <__aeabi_atexit>
