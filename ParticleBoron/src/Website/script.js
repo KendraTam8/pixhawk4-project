@@ -7,7 +7,7 @@ function callAPI() {
 
     var vrPr = particle.getVariable({deviceId: myId, name: "returnValue", auth: accessToken});
     vrPr.then(function(varData){
-        value = "Acquired Value: " + varData.body.result;
+        value = varData.body.result;
         document.getElementById("returnLabel").innerHTML = value;
         console.log(value);
     }, function(err) {
