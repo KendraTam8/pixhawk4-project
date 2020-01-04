@@ -5,7 +5,8 @@
     "files.associations": {
         "*.ino": "cpp",
         "chrono": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "iostream": "cpp"
     },
     "particle.targetDevice": "potato",
     "particle.firmwareVersion": "1.4.4",

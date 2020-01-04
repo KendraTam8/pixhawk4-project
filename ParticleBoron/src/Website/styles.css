@@ -1,0 +1,94 @@
+body {
+	margin: 0;
+}
+
+img.resize {
+	width: 100px;
+	
+}
+
+h1 {
+	font-family: Arial, Helvetica, sans-serif;
+	display: inline;
+	margin: auto;
+}
+
+p {
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	margin-bottom: 4px;
+}
+
+table {
+	font-family: arial, sans-serif;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+td, th {
+	border: 1px solid #dddddd;
+	text-align: left;
+	padding: 8px;
+}
+
+tr:nth-child(even) {
+	background-color: #dddddd;
+}
+
+.header {
+	padding: 10px;
+	color: white;
+	font-size: 20px;
+	background:
+		linear-gradient(
+			to right, 
+			#009aff,
+			#00ffff
+		)
+		left 
+		bottom
+		#242424    
+		no-repeat; 
+	background-size:100% 5px ;
+	display:flex;
+	justify-content:flex-end;
+	align-items:center; 
+}
+
+.getButton {
+	border: 1px solid #009aff;
+	background-color: Transparent;
+	color: white;
+	padding: 5px;
+	border-radius: 5px;
+}
+
+.hvr-fade {
+	display: inline-block;
+	vertical-align: middle;
+	-webkit-transform: perspective(1px) translateZ(0);
+	transform: perspective(1px) translateZ(0);
+	box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+	overflow: hidden;
+	-webkit-transition-duration: 0.3s;
+	transition-duration: 0.3s;
+	-webkit-transition-property: color, background-color;
+	transition-property: color, background-color;
+}
+.hvr-fade:hover, .hvr-fade:focus, .hvr-fade:active {
+	border: 1px solid #009aff;
+	background-color: #009aff;
+	color: white;
+}
+
+.content {
+	margin: 8px;
+}
+
+.flex-container {
+	display: flex;
+}
+
+.container {
+	flex-grow: 1;
+}

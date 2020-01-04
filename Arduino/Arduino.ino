@@ -1,4 +1,5 @@
 #include <mavlink.h>
+#include <mavlink_data_types.h>
 #include <SoftwareSerial.h>
 
 unsigned long previousMillisMAVLink = 0;     // will store last time MAVLink was transmitted and listened
@@ -131,7 +132,6 @@ void comm_receive() {
     
     // Try to get a new message
     if(mavlink_parse_char(MAVLINK_COMM_0, c, &msg, &status)) {
-      mySerial.println("hi"+msg.msgid);
       // Handle message
       switch(msg.msgid) {
         case MAVLINK_MSG_ID_HEARTBEAT:  // #0: Heartbeat
@@ -192,11 +192,11 @@ void comm_receive() {
             mavlink_gps_raw_int_t packet;
             mavlink_msg_gps_raw_int_decode(&msg, &packet);
             
-            mySerial.print("\nGPS Fix: ");mySerial.println(packet.fix_type);
-            mySerial.print("GPS Latitude: ");mySerial.println(packet.lat);
-            mySerial.print("GPS Longitude: ");mySerial.println(packet.lon);
-            mySerial.print("GPS Speed: ");mySerial.println(packet.vel);
-            mySerial.print("Sats Visible: ");mySerial.println(packet.satellites_visible);
+            mySerial.print(GPS_FIX);mySerial.print(":");mySerial.println(packet.fix_type);
+            mySerial.print(GPS_LAT);mySerial.print(":");mySerial.println(packet.lat);
+            mySerial.print(GPS_LONG);mySerial.print(":");mySerial.println(packet.lon);
+            mySerial.print(GPS_SPEED);mySerial.print(":");mySerial.println(packet.vel);
+            mySerial.print(GPS_SATS_VIS);mySerial.print(":");mySerial.println(packet.satellites_visible);
           
           }
           break;
