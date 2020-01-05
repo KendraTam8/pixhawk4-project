@@ -1,9 +1,7 @@
 var Particle = require('particle-api-js');
+var keys = require('./config.js');
 
-// const accountSid = 'AC8eefdb7a72cac677dd22470202bbaf76';
-// const authToken = '5effabe0866787c254cb5de3437e11ab';
-
-// const client = require('twilio')(accountSid,authToken);
+const client = require('twilio')(keys.twilioAccountSid,keys.twilioAuthToken);
 
 // client.messages.create({
 //     to: '+16478237838',
@@ -13,8 +11,8 @@ var Particle = require('particle-api-js');
 // .then(message => console.log(message.sid));
 
 var particle = new Particle();
-let myId = "e00fce682f9153fb1a6ab1b1";
-let accessToken = "390f30e183fb700b60b380048bb4b68c7067bd6d";
+let myId = keys.particleId;
+let accessToken = keys.particleAuthToken;
 let infoList = ["voltage","battery","gpsLat","gpsLong","gpsSatsVis","altitude","roll","pitch","yaw","missionCurrent","airspeed","heading"];
 let latitiude = 43.6532;
 let longitude = -79.3832;

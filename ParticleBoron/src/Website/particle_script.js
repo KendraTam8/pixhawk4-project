@@ -1,6 +1,6 @@
 let particle = new Particle();
-let myId = "e00fce682f9153fb1a6ab1b1";
-let accessToken = "390f30e183fb700b60b380048bb4b68c7067bd6d";
+let myId = keys.particleId;
+let accessToken = keys.particleAuthToken;
 let infoList = ["voltage","battery","gpsLat","gpsLong","gpsSatsVis","altitude","roll","pitch","yaw","missionCurrent","airspeed","heading"];
 let latitiude = 43.6532;
 let longitude = -79.3832;
