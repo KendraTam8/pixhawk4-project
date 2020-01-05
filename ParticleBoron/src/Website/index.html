@@ -1,0 +1,109 @@
+<!DOCTYPE>
+<html>
+	<head>
+		<title>Aerlift Mavlink Data</title>
+		<link rel="icon" href="Images/Aerlift Logo Favicon (32px).png">
+		<link rel="stylesheet" href="styles.css">
+		<script src="particle_script.js"></script>
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA5Z60MpxvnumwIEJxPEFBgZdxOAj7Dhm8&callback=refreshMap" async defer></script>
+	</head>
+	<body>
+		<div class="header">
+			<div class="hItem1">
+				<img src="Images/Aerlift Logo Long (Gradient).png" alt="Aerlift Logo" class="resize"> 
+			</div>
+			<div class="hItem2">
+				<h1 class="title"> Flight Data </h1>
+			</div>
+			<div class="hItem3">
+				<button type="button" id="get" class="getButton hvr-fade" onclick="callAPI()"> Get data </button>
+			</div>
+		</div>
+		<div class="content">
+			<div class="cItem">
+				<p> Battery </p>
+				<table>
+					<tr>
+						<td class="dataName">Voltage Battery</td>
+						<td class="dataValue" id="voltage"></td>
+					</tr>
+					<tr>
+						<td class="dataName">Battery Remaining</td>
+						<td class="dataValue" id="battery"></td>
+					</tr>
+				</table>
+			</div>
+			
+			<div class="cItem">
+				<p> GPS </p>
+				<table>
+					<tr>
+						<td class="dataName">Latitude</td>
+						<td class="dataValue" id="gpsLat"></td>
+					</tr>
+					<tr>
+						<td class="dataName">Longitude</td>
+						<td class="dataValue" id="gpsLong"></td>
+					</tr>
+					<tr>
+						<td class="dataName">Satellites Visible</td>
+						<td class="dataValue" id="gpsSatsVis"></td>
+					</tr>
+					<tr>
+						<td class="dataName">Altitude</td>
+						<td class="dataValue" id="altitude"></td>
+					</tr>
+				</table>
+			</div>
+
+			<div class="cItem">
+				<p> Attitude </p>
+				<table>
+					<tr>
+						<td class="dataName">Roll</td>
+						<td id="roll"></td>
+					</tr>
+					<tr>
+						<td class="dataName">Pitch</td>
+						<td id="pitch"></td>
+					</tr>
+					<tr>
+						<td class="dataName">Yaw</td>
+						<td id="yaw"></td>
+					</tr>
+				</table>
+			</div>
+	
+			<div class="cItem">
+				<p> Mission Current </p>
+				<table>
+					<tr>
+						<td class="dataName">Sequence</td>
+						<td class="dataValue" id="missionCurrent"></td>
+					</tr>
+				</table>
+			</div>
+			
+			<div class="cItem">
+				<p> VFR HUD </p>
+				<table>
+					<tr>
+						<td class="dataName">Airspeed</td>
+						<td class="dataValue" id="airspeed"></td>
+					</tr>
+					<tr>
+						<td class="dataName">Heading</td>
+						<td class="dataValue" id="heading"></td>
+					</tr>
+				</table>
+			</div>
+			
+		</div>
+		
+		<div class="mapWrapper">
+			<p> Map </p>
+			<div id="map"></div>
+		</div>
+
+	</body>
+</html>
