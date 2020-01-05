@@ -6,6 +6,7 @@
 		<link rel="stylesheet" href="styles.css">
 		<script src="https://cdn.jsdelivr.net/npm/particle-api-js@8/dist/particle.min.js"></script>
 		<script src="script.js"></script>
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA5Z60MpxvnumwIEJxPEFBgZdxOAj7Dhm8&callback=refreshMap" async defer></script>
 	</head>
 	<body>
 		<div class="header">
@@ -102,18 +103,7 @@
 		
 		<div class="mapWrapper">
 			<p> Map </p>
-			<div align = "center">
-				<iframe 
-					id="map" 
-					width="100%"
-					height="100%"
-					frameborder="0" 
-					scrolling="no" 
-					marginheight="0" 
-					marginwidth="0" 
-					src="https://maps.google.com/maps?q=43.6532,-79.3832&hl=en;z=14&amp;output=embed">
-				</iframe>
-			</div>
+			<div id="map"></div>
 		</div>
 
 	</body>

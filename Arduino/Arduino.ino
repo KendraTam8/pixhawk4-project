@@ -220,8 +220,8 @@ void boron_request() {
   mySerial.print(BATT_REMAIN);mySerial.print(":1|");mySerial.println(battery);
 
   //gps
-  mySerial.print(GPS_LAT);mySerial.print(":2|");mySerial.println(latitude);
-  mySerial.print(GPS_LONG);mySerial.print(":3|");mySerial.println(longitude);
+  mySerial.print(GPS_LAT);mySerial.print(":");mySerial.println(latitude);
+  mySerial.print(GPS_LONG);mySerial.print(":");mySerial.println(longitude);
   mySerial.print(GPS_SATS_VIS);mySerial.print(":4|");mySerial.println(satsVisible);
   mySerial.print(ALT);mySerial.print(":5|");mySerial.println(altitude);
 

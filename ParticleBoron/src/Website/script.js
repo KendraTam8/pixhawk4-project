@@ -5,6 +5,7 @@ let infoList = ["voltage","battery","gpsLat","gpsLong","gpsSatsVis","altitude","
 let latitiude = 43.6532;
 let longitude = -79.3832;
 let count = 0;
+let invalidCoordinates = false;
 
 function callAPI() {
     count = 0;
@@ -38,21 +39,28 @@ function callParticleFunc() {
 function getParticleVar(vrPr, info) {
     let value;
     vrPr.then(function(varData){
-        // if (info == "gpsLat") {
-        //     document.getElementById("map").src = "https://maps.google.com/maps?q=" + latitiude + "," + longitude + "&hl=en;z=14&amp;output=embed";
-        //     //latitiude = value;
-        // }
-        // else if (info == "gpsLong") {
-        //     document.getElementById("map").src = "https://maps.google.com/maps?q=" + latitiude + "," + longitude + "&hl=en;z=14&amp;output=embed";
-        //     //longitude = value;
-        // }
         value = varData.body.result;
+        if (info == "gpsLat") {
+            value = parseInt(value);
+            invalidCoordinates = Number.isNaN(value);
+            if (!invalidCoordinates) {
+                latitiude = value;
+            }
+        }
+        else if (info == "gpsLong") {
+            value = parseInt(value);
+            invalidCoordinates = Number.isNaN(value);
+            if (!invalidCoordinates) {
+                longitude = value;
+            }
+        }
         document.getElementById(info).innerHTML = value;
         count++
         if (count >= infoList.length-1) {
             document.getElementById("get").disabled = false;
             document.getElementById("get").innerHTML = "Get data";
             count = 0;
+            refreshMap();
             console.log("Successfully retrieved");
         }
     }, function(err) {
@@ -64,3 +72,21 @@ function getParticleVar(vrPr, info) {
         console.log("An error occurred:", err);
     });
 }
+
+function refreshMap() {
+    var map = new google.maps.Map(document.getElementById('map'), {
+        center: {lat: latitiude, lng: longitude},
+        zoom: 15
+    });
+
+    if (!invalidCoordinates) {
+        var marker = new google.maps.Marker({
+            position: {lat: latitiude, lng: longitude},
+            map: map,
+            title: 'Drone Location'
+        });
+
+        marker.setMap(map);
+    }
+}
+
