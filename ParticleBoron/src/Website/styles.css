@@ -16,7 +16,7 @@ h1 {
 p {
 	font-family: Arial, Helvetica, sans-serif;
 	font-weight: bold;
-	margin-bottom: 4px;
+	margin: 4px;
 }
 
 table {
@@ -51,8 +51,22 @@ tr:nth-child(even) {
 		no-repeat; 
 	background-size:100% 5px ;
 	display:flex;
-	justify-content:flex-end;
 	align-items:center; 
+}
+
+.hItem1{
+	width: 33.33%;
+	text-align: left;
+}
+
+.hItem2{
+	width: 33.33%;
+	text-align: center;
+}
+
+.hItem3{
+	width: 33.33%;
+	text-align: right;
 }
 
 .getButton {
@@ -75,20 +89,29 @@ tr:nth-child(even) {
 	-webkit-transition-property: color, background-color;
 	transition-property: color, background-color;
 }
-.hvr-fade:hover, .hvr-fade:focus, .hvr-fade:active {
+.hvr-fade:hover, .hvr-fade:active, .hvr-fade:disabled {
 	border: 1px solid #009aff;
 	background-color: #009aff;
 	color: white;
 }
 
 .content {
-	margin: 8px;
+	margin-left: 10px;
+	margin-right: 10px;
+	margin-bottom: 10px;
+	display: grid;
+	grid-template-columns: 33% 33% 33%;
+	justify-content: space-between;
 }
 
-.flex-container {
-	display: flex;
+.cItem {
+	margin: 10px;
 }
 
-.container {
-	flex-grow: 1;
+.dataName {
+	width: 60%;
+}
+
+.mapWrapper {
+	margin: 20px;
 }
