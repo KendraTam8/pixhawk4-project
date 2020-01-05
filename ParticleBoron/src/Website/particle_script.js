@@ -1,4 +1,3 @@
-var Particle = require('particle-api-js');
 let particle = new Particle();
 let myId = "e00fce682f9153fb1a6ab1b1";
 let accessToken = "390f30e183fb700b60b380048bb4b68c7067bd6d";
@@ -21,7 +20,7 @@ function callParticleFunc() {
     var fnPr = particle.callFunction({deviceId: myId, name: 'getMavlink', argument: '1', auth: accessToken});
 
     fnPr.then(
-    function(data) {
+    function() {
         console.log('Function called succesfully');
         for (i = 0; i < infoList.length; i++) {
             let vrPr = particle.getVariable({deviceId: myId, name: infoList[i], auth: accessToken});

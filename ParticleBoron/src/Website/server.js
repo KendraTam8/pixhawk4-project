@@ -1,15 +1,16 @@
 const http = require('http');
 const express = require('express');
-const particle = require('./particle_script');
 const MessagingResponse = require('twilio').twiml.MessagingResponse;
+const twilio = require('./twilio_script');
 
 const app = express();
 
 app.post('/sms', (req, res) => {
     const twiml = new MessagingResponse();
     
-    particle.callAPI();
-    twiml.message('The Robots are coming! Head for the hills!');
+    let val = twilio.callAPI();
+    console.log('')
+    twiml.message(val);
 
     res.writeHead(200, {'Content-Type': 'text/xml'});
     res.end(twiml.toString());
