@@ -1,54 +1,30 @@
-#include <mavlink.h>
-#include <mavlink_data_types.h>
-#include <SoftwareSerial.h>
+#include "./drone_POC.h"
 
-unsigned long previousMillisMAVLink = 0;     // will store last time MAVLink was transmitted and listened
-unsigned long next_interval_MAVLink = 1000;  // next interval to count
-const int num_hbs = 60;                      // # of heartbeats to wait before activating STREAMS from Pixhawk. 60 = one minute.
-int num_hbs_pasados = num_hbs;
-SoftwareSerial mySerial(2,3);   //RX, TX
+MFRC522 rfid(SS_PIN, RST_PIN); // Instance of the class
 
-/* The default UART header for your MCU */ 
-int sysid = 1;                   ///< ID 20 for this airplane. 1 PX, 255 ground station
-int compid = 158;                ///< The component sending the message
-int type = MAV_TYPE_QUADROTOR; 
+enum State {WAIT, SCAN, ACCEPT, REJECT};
+enum State state;
 
-// Define the system type, in this case an airplane -> on-board controller
-uint8_t system_type = MAV_TYPE_GENERIC;
-uint8_t autopilot_type = MAV_AUTOPILOT_INVALID;
-
-uint8_t system_mode = MAV_MODE_PREFLIGHT; ///< Booting up
-uint32_t custom_mode = 0;                 ///< Custom mode, can be defined by user/adopter
-uint8_t system_state = MAV_STATE_STANDBY; ///< System ready for flight
-
-// Initialize the required buffers
-mavlink_message_t msg;
-uint8_t buf[MAVLINK_MAX_PACKET_LEN];
-
-String voltage = "";
-String battery = "";
-String latitude = "";
-String longitude = "";
-String satsVisible = "";
-String altitude = "";
-String roll = "";
-String pitch = "";
-String yaw = "";
-String missionCurr = "";
-String airspeed = "";
-String heading = "";
-
-
-void setup() {
+void setup() { 
   mySerial.begin(9600);
   Serial.begin(57600);
-}
+  SPI.begin(); // Init SPI bus
+  rfid.PCD_Init(); // Init MFRC522 
 
-void loop() {
-  // MAVLink config
+  pinMode(BUZZ_PIN, OUTPUT);
+  pinMode(LED_RED, OUTPUT);
+  pinMode(BUTTON_PIN,INPUT_PULLUP);
+
+  digitalWrite(LED_RED, LOW);
+  beepReady();
+
+  state = SCAN;
+}
+ 
+void loop() { 
   
   // Pack the message
-  mavlink_msg_heartbeat_pack(1, 0, &msg, type, autopilot_type, system_mode, custom_mode, system_state);
+  mavlink_msg_heartbeat_pack(1, 0, &msg, VEH_TYPE, AUTOPILOT_TYPE, system_mode, custom_mode, system_state);
   
   // Copy the message to the send buffer
   uint16_t len = mavlink_msg_to_send_buffer(buf, &msg);
@@ -65,7 +41,7 @@ void loop() {
 
     //Mav_Request_Data();
     num_hbs_pasados++;
-    if(num_hbs_pasados>=num_hbs) {
+    if(num_hbs_pasados>=NUM_HBS) {
     // Request streams from Pixhawk
     Mav_Request_Data();
     num_hbs_pasados=0;
@@ -79,7 +55,86 @@ void loop() {
   if (infoRequest == '*') {
     boron_request();
   }
+
+
+  if (true || state != ACCEPT) {
+    // Reset the loop if no new card present on the sensor/reader. This saves the entire process when idle.
+    if ( ! rfid.PICC_IsNewCardPresent())
+      return;
+    
+    // Verify if the NUID has been readed
+    if ( ! rfid.PICC_ReadCardSerial())
+      return;
+    
+    MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
+    
+    // Check is the PICC of Classic MIFARE type
+    if (piccType != MFRC522::PICC_TYPE_MIFARE_MINI &&  
+      piccType != MFRC522::PICC_TYPE_MIFARE_1K &&
+      piccType != MFRC522::PICC_TYPE_MIFARE_4K) {
+      Serial.println(F("Incorrect Card Format, Should use MiFare classic, 1K or 4K"));
+      return;
+    }
+    
+    // Copy Card Data
+    for (byte i = 0; i < 4; i++) {
+      cardRead.part[i] = rfid.uid.uidByte[i];
+    }
+    
+    Serial.println(cardRead.all, HEX);
+    
+    // Halt PICC
+    rfid.PICC_HaltA();
+    
+    // Stop encryption on PCD
+    rfid.PCD_StopCrypto1();
+    
+    // Search Card
+    for (int i = 0; i < sizeof(authorizedCards)/sizeof(authorizedCards[0]); i++) {
+      if (cardRead.all == authorizedCards[i]) {
+        // Card is in the authorized list, accept
+        state = ACCEPT;
+        digitalWrite(LED_RED, HIGH);
+        beepAccept();
+        return;
+      }
+    }
+    // Did not find matching card, reject
+    digitalWrite(LED_RED, LOW);
+    beepReject();
+    state = REJECT;
+  }
+
+}
+
+void beepAccept() {
+  tone(BUZZ_PIN,2093,250);
+  delay(150);
+  tone(BUZZ_PIN,2637,250);
+  delay(150);
+  tone(BUZZ_PIN,3135,500);
+  delay(300);
+}
+
+void beepReject() {
+  tone(BUZZ_PIN,3135,75);
   delay(100);
+  tone(BUZZ_PIN,3135,75);
+  delay(100);
+  tone(BUZZ_PIN,3135,75);
+  delay(100);
+}
+
+void beepReady(){
+  tone(BUZZ_PIN,2637,250);
+  delay(150);
+  tone(BUZZ_PIN,2093,250);
+  delay(150);
+}
+
+void beepScan(){
+  tone(BUZZ_PIN,3135,100);
+  delay(150);
 }
 
 void Mav_Request_Data()
