@@ -6,9 +6,6 @@
  */
 #include "mavlink_data_types.h"
 
-String phrase = "";
-int dataType;
-
 String voltage = "";
 String battery = "";
 String latitude = "";
@@ -21,12 +18,20 @@ String yaw = "";
 String missionCurr = "";
 String airspeed = "";
 String heading = "";
-bool requestData = false;
 
-int maxlimit = 1000;
+
+String phrase = "";
+int dataType;
 int count = 0;
 int incomingByte;
 char letter;
+const int maxlimit = 1000;
+
+String twilioMsg = "Type one of the coresponding numbers.\n";
+bool incomingSMS = false;
+int stateSMS = 0;	// 0=nothing, 1=first call, 2=get data, 3=done	
+int infoSMS = 12;
+String *mavlinkDataList[TOTAL_TYPES];
 
 // setup() runs once, when the device is first turned on.
 void setup() {
@@ -49,60 +54,137 @@ void setup() {
     Particle.variable("airspeed", airspeed);
     Particle.variable("heading", heading);
 
+    Particle.variable("infoSMS", infoSMS);
+    Particle.variable("stateSMS", stateSMS);
+
 	Particle.function("getMavlink", getMavlink);
+
+	String *ptr;
+	for (int i=0; i<TOTAL_TYPES; i++) {
+		twilioMsg += String(i) + " - ";
+		switch(i) {
+			case VOLT:
+				ptr = &voltage;
+				twilioMsg += "Voltage\n";
+				break;
+			case BATT_REMAIN:
+				ptr = &battery;
+				twilioMsg += "Battery\n";
+				break;
+			case GPS_LAT:
+				ptr = &latitude;
+				twilioMsg += "Latitude\n";
+				break;
+			case GPS_LONG:
+				ptr = &longitude;
+				twilioMsg += "Longitude\n";
+				break;
+			case GPS_SATS_VIS:
+				ptr = &satsVisible;
+				twilioMsg += "Satellites Visible\n";
+				break;
+			case ALT:
+				ptr = &altitude;
+				twilioMsg += "Altitude\n";
+				break;
+			case ALT_ROLL:
+				ptr = &roll;
+				twilioMsg += "Roll\n";
+				break;
+			case ALT_PITCH:
+				ptr = &pitch;
+				twilioMsg += "Pitch\n";
+				break;
+			case ALT_YAW:
+				ptr = &yaw;
+				twilioMsg += "Yaw\n";
+				break;
+			case MISS_CURR:
+				ptr = &missionCurr;
+				twilioMsg += "Mission Current Sequence\n";
+				break;
+			case VFR_AIRSPEED:
+				ptr = &airspeed;
+				twilioMsg += "Airspeed\n";
+				break;
+			case VFR_HEAD:
+				ptr = &heading;
+				twilioMsg += "Heading\n";
+				break;
+			default:
+				ptr = NULL;
+				break;
+		}
+		mavlinkDataList[i] = ptr;
 	}
+	ptr = NULL;
+	delete ptr;
+	twilioMsg += String(TOTAL_TYPES) + " - All of the Above";
+	Particle.publish("twilio_sms", twilioMsg, PRIVATE);
+}
 
 // loop() runs over and over again, as quickly as it can execute.
 void loop() {
+	
+	if (stateSMS == 1) {
+		// total = 1;
+		// if (infoSMS == 12) {
+		// 	total = 12;
+		// }
+		stateSMS = 2;
+		getMavlink("1");
+	}
+	else if (stateSMS == 3) {
+		stateSMS = 0;
+		Particle.publish("twilio_sms", twilioMsg, PRIVATE);
+	}
+
     if (Serial1.available() > 0) {
         incomingByte = Serial1.read();
         letter = incomingByte;
-		//phrase += letter;
 		Serial.print(letter);
         if (letter == ':' || count >= maxlimit) {
-			//Serial.print(phrase);
 
 			dataType = phrase.toInt();
             phrase = "";
             count = 0;
         }
 		else if (letter == '\n' || count >= maxlimit){
-			//Serial.print(phrase);
 			switch(dataType) {
-				case 0:
+				case VOLT:
 					voltage = phrase;
 					break;
-				case 1:
+				case BATT_REMAIN:
 					battery = phrase;
 					break;
-				case 2:
+				case GPS_LAT:
 					latitude = phrase;
 					break;
-				case 3:
+				case GPS_LONG:
 					longitude = phrase;
 					break;
-				case 4:
+				case GPS_SATS_VIS:
 					satsVisible = phrase;
 					break;
-				case 5:
+				case ALT:
 					altitude = phrase;
 					break;
-				case 6:
+				case ALT_ROLL:
 					roll = phrase;
 					break;
-				case 7:
+				case ALT_PITCH:
 					pitch = phrase;
 					break;
-				case 8:
+				case ALT_YAW:
 					yaw = phrase;
 					break;
-				case 9:
+				case MISS_CURR:
 					missionCurr = phrase;
 					break;
-				case 10:
+				case VFR_AIRSPEED:
 					airspeed = phrase;
 					break;
-				case 11:
+				case VFR_HEAD:
 					heading = phrase;
 					break;
 				default:

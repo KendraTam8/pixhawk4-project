@@ -12,5 +12,6 @@ typedef enum {
 	ALT_YAW,
 	MISS_CURR,
 	VFR_AIRSPEED,
-	VFR_HEAD
+	VFR_HEAD,
+	TOTAL_TYPES
 } mavlink_info;

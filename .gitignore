@@ -1,3 +1,8 @@
+ParticleBoron/target/*
+ParticleBoron/boron_firmware_1578532489590.bin
 Website/config.js
+Website/.env
+Website/node_modules/*
 Twilio/config.js
 Twilio/node_modules/*
+react/*
