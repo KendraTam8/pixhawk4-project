@@ -1,11 +1,7 @@
-// import {log} from 'log'
-
 let particle = new Particle();
 let myId = keys.particleId;
 let accessToken = keys.particleAuthToken;
-// let logList = log();
-// let myId = logList[0];
-// let accessToken = logList[1];
+
 let infoList = ["voltage","battery","gpsLat","gpsLong","gpsSatsVis","altitude","roll","pitch","yaw","missionCurrent","airspeed","heading"];
 let latitiude = 43.6532;
 let longitude = -79.3832;
@@ -87,7 +83,6 @@ function getParticleVar(vrPr, info) {
 }
 
 function refreshMap() {
-    console.log(latitiude, longitude);
     var map = new google.maps.Map(document.getElementById('map'), {
         center: {lat: latitiude, lng: longitude},
         zoom: 15

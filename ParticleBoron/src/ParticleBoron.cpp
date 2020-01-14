@@ -15,6 +15,7 @@
 void setup();
 void loop();
 int getMavlink(String request);
+int incomingSMS(String info);
 #line 9 "c:/Users/kendr/OneDrive/Documents/GitHub/Particle/ParticleBoron/src/ParticleBoron.ino"
 String voltage = "";
 String battery = "";
@@ -37,7 +38,7 @@ char letter;
 const int MAX = 500;
 
 String twilioMsg = "Type one of the coresponding numbers.\n";
-int stateSMS = 1;	// 0=nothing, 1=first call, 2=get data, 3=done	
+int stateSMS = 0;	// 0=nothing, 1=first call, 2=get data, 3=done	
 int infoSMS = 12;
 String *mavlinkDataList[TOTAL_TYPES];
 String mavlinkTypeList[TOTAL_TYPES];
@@ -64,10 +65,10 @@ void setup() {
     Particle.variable("airspeed", airspeed);
     Particle.variable("heading", heading);
 
-    Particle.variable("infoSMS", infoSMS);
     Particle.variable("stateSMS", stateSMS);
 
 	Particle.function("getMavlink", getMavlink);
+	Particle.function("incomingSMS", incomingSMS);
 
 	String *ptr;
 	String name;
@@ -139,11 +140,10 @@ void setup() {
 
 // loop() runs over and over again, as quickly as it can execute.
 void loop() {
-	
 	if (stateSMS == 1) {
 		if (infoSMS > TOTAL_TYPES || infoSMS < 0) {
 			stateSMS = 0;
-			Particle.publish("twilio_sms", "Invalid Input.", PRIVATE);
+			Particle.publish("twilio_sms", "Invalid Request.", PRIVATE);
 		} 
 		else {
 			gotCount = 0;
@@ -274,4 +274,10 @@ int getMavlink(String request) {
 		return 1;
 	}
 	return 0;
+}
+
+int incomingSMS(String info) {
+	infoSMS = info.toInt();
+	stateSMS = 1;
+	return 1;
 }
