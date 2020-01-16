@@ -17,6 +17,8 @@ void loop();
 int getMavlink(String request);
 int incomingSMS(String info);
 #line 9 "c:/Users/kendr/OneDrive/Documents/GitHub/Particle/ParticleBoron/src/ParticleBoron.ino"
+String orderReq = "";
+bool isScanAuth = "";
 String voltage = "";
 String battery = "";
 String latitude = "";
@@ -37,12 +39,21 @@ int incomingByte;
 char letter;
 const int MAX = 500;
 
-String twilioMsg = "Type one of the coresponding numbers.\n";
-int stateSMS = 0;	// 0=nothing, 1=first call, 2=get data, 3=done	
+String twilioMsg = "";
+String twilioCMsg = "Connected1";
+String twilioHMsg = "Connected2";
+int stateSMS = 0;	// 0=nothing, 1=phone1standby|phone2askload, 2=2askauthtag 3=2asktakeoff, 4=depart+arrive, (5=error)
 int infoSMS = 12;
 String *mavlinkDataList[TOTAL_TYPES];
 String mavlinkTypeList[TOTAL_TYPES];
 int gotCount = 0;
+
+String order = "";
+int orderNum = 0;
+int droneNum = 5;
+int eta = 15;
+int cardValid = 1;
+bool isMsgSent = false;
 
 // setup() runs once, when the device is first turned on.
 void setup() {
@@ -65,205 +76,111 @@ void setup() {
     Particle.variable("airspeed", airspeed);
     Particle.variable("heading", heading);
 
-    Particle.variable("stateSMS", stateSMS);
-
 	Particle.function("getMavlink", getMavlink);
 	Particle.function("incomingSMS", incomingSMS);
 
-	String *ptr;
-	String name;
-	for (int i=0; i<TOTAL_TYPES; i++) {
-		twilioMsg += String(i) + " - ";
-		switch(i) {
-			case VOLT:
-				ptr = &voltage;
-				name = "Voltage";
-				break;
-			case BATT_REMAIN:
-				ptr = &battery;
-				name = "Battery";
-				break;
-			case GPS_LAT:
-				ptr = &latitude;
-				name = "Latitude";
-				break;
-			case GPS_LONG:
-				ptr = &longitude;
-				name = "Longitude";
-				break;
-			case GPS_SATS_VIS:
-				ptr = &satsVisible;
-				name = "Satellites Visible";
-				break;
-			case ALT:
-				ptr = &altitude;
-				name = "Altitude";
-				break;
-			case ALT_ROLL:
-				ptr = &roll;
-				name = "Roll";
-				break;
-			case ALT_PITCH:
-				ptr = &pitch;
-				name = "Pitch";
-				break;
-			case ALT_YAW:
-				ptr = &yaw;
-				name = "Yaw";
-				break;
-			case MISS_CURR:
-				ptr = &missionCurr;
-				name = "Mission Current Sequence";
-				break;
-			case VFR_AIRSPEED:
-				ptr = &airspeed;
-				name = "Airspeed";
-				break;
-			case VFR_HEAD:
-				ptr = &heading;
-				name = "Heading";
-				break;
-			default:
-				ptr = NULL;
-				name = "";
-				break;
-		}
-		twilioMsg += name + "\n";
-		mavlinkDataList[i] = ptr;
-		mavlinkTypeList[i] = name;
-	}
-	ptr = NULL;
-	delete ptr;
-	twilioMsg += String(TOTAL_TYPES) + " - All of the Above";
-	Particle.publish("twilio_sms", twilioMsg, PRIVATE);
+	Particle.publish("twilio_clinic", twilioCMsg, PRIVATE);
+	Particle.publish("twilio_hospital", twilioHMsg, PRIVATE);
 }
 
 // loop() runs over and over again, as quickly as it can execute.
 void loop() {
-	if (stateSMS == 1) {
-		if (infoSMS > TOTAL_TYPES || infoSMS < 0) {
-			stateSMS = 0;
-			Particle.publish("twilio_sms", "Invalid Request.", PRIVATE);
-		} 
-		else {
-			gotCount = 0;
-			stateSMS = 2;
-			getMavlink("1");
-		}
-	}
-	else if (stateSMS == 3) {
-		twilioMsg = "REQUESTED DATA\n";
-		if (infoSMS == 12 ) {
-			for (int i=0; i<TOTAL_TYPES; i++) {
-				twilioMsg += mavlinkTypeList[i] + ": " + *mavlinkDataList[i] + "\n";
+	
+	switch(stateSMS) {
+		case 1:
+			if (!isMsgSent) {
+				Particle.publish("twilio_clinic", twilioCMsg, PRIVATE);
+				Particle.publish("twilio_hospital", twilioHMsg, PRIVATE);
+				isMsgSent = true;
 			}
-		}
-		else {
-			twilioMsg += mavlinkTypeList[infoSMS] + ": " + *mavlinkDataList[infoSMS];
-		}
-
-		stateSMS = 0;
-		Particle.publish("twilio_sms", twilioMsg, PRIVATE);
+			break;
+		case 2:
+			if (cardValid) {
+				Particle.publish("twilio_hospital", twilioHMsg, PRIVATE);
+				//cardValid = 0;
+				stateSMS = 3;
+			}
+			break;
+		case 3:
+			if (!isMsgSent) {
+				twilioHMsg = "Scan accepted\nSend YES when clear for takeoff";	//get rid when arduino
+				Particle.publish("twilio_hospital", twilioHMsg, PRIVATE);
+				isMsgSent = true;
+			}
+			break;
+		case 4:
+			Particle.publish("twilio_hospital", twilioHMsg, PRIVATE);
+			Particle.publish("twilio_clinic", twilioCMsg, PRIVATE);
+			stateSMS = 0;
+			isMsgSent = false;
+			break;
+		default:
+			break;
 	}
 
     if (Serial1.available() > 0) {
         incomingByte = Serial1.read();
         letter = incomingByte;
 		Serial.print(letter);
-        if (letter == ':' || count >= MAX) {
-
-			dataType = phrase.toInt();
-            phrase = "";
-            count = 0;
-        }
-		else if (letter == '\n' || count >= MAX){
-			switch(dataType) {
-				case VOLT:
-					voltage = phrase;
-					if (stateSMS == 2) {
-						gotCount++;
-					}
-					break;
-				case BATT_REMAIN:
-					battery = phrase;
-					if (stateSMS == 2) {
-						gotCount++;
-					}
-					break;
-				case GPS_LAT:
-					latitude = phrase;
-					if (stateSMS == 2) {
-						gotCount++;
-					}
-					break;
-				case GPS_LONG:
-					longitude = phrase;
-					if (stateSMS == 2) {
-						gotCount++;
-					}
-					break;
-				case GPS_SATS_VIS:
-					satsVisible = phrase;
-					if (stateSMS == 2) {
-						gotCount++;
-					}
-					break;
-				case ALT:
-					altitude = phrase;
-					if (stateSMS == 2) {
-						gotCount++;
-					}
-					break;
-				case ALT_ROLL:
-					roll = phrase;
-					if (stateSMS == 2) {
-						gotCount++;
-					}
-					break;
-				case ALT_PITCH:
-					pitch = phrase;
-					if (stateSMS == 2) {
-						gotCount++;
-					}
-					break;
-				case ALT_YAW:
-					yaw = phrase;
-					if (stateSMS == 2) {
-						gotCount++;
-					}
-					break;
-				case MISS_CURR:
-					missionCurr = phrase;
-					if (stateSMS == 2) {
-						gotCount++;
-					}
-					break;
-				case VFR_AIRSPEED:
-					airspeed = phrase;
-					if (stateSMS == 2) {
-						gotCount++;
-					}
-					break;
-				case VFR_HEAD:
-					heading = phrase;
-					if (stateSMS == 2) {
-						gotCount++;
-					}
-					break;
-				default:
-					break;
-			}
-			if (stateSMS == 2 && gotCount >= TOTAL_TYPES) {
-				stateSMS = 3;
-				gotCount = 0;
-			}
-            phrase = "";
-            count = 0;
+		if (stateSMS == 2) {
+			cardValid = incomingByte;
+			twilioHMsg = "Scan accepted\nSend YES when clear for takeoff";
 		}
-        else {
-            count++;
-			phrase += letter;
-        }
+		else {
+			if (letter == ':' || count >= MAX) {
+				dataType = phrase.toInt();
+				phrase = "";
+				count = 0;
+			}
+			else if (letter == '\n' || count >= MAX){
+				switch(dataType) {
+					case VOLT:
+						voltage = phrase;
+						break;
+					case BATT_REMAIN:
+						battery = phrase;
+						break;
+					case GPS_LAT:
+						latitude = phrase;
+						break;
+					case GPS_LONG:
+						longitude = phrase;
+						break;
+					case GPS_SATS_VIS:
+						satsVisible = phrase;
+						break;
+					case ALT:
+						altitude = phrase;
+						break;
+					case ALT_ROLL:
+						roll = phrase;
+						break;
+					case ALT_PITCH:
+						pitch = phrase;
+						break;
+					case ALT_YAW:
+						yaw = phrase;
+						break;
+					case MISS_CURR:
+						missionCurr = phrase;
+						break;
+					case VFR_AIRSPEED:
+						airspeed = phrase;
+						break;
+					case VFR_HEAD:
+						heading = phrase;
+						break;
+					default:
+						break;
+				}
+				phrase = "";
+				count = 0;
+			}
+			else {
+				count++;
+				phrase += letter;
+			}
+		}
     }
 	delay(5);
 }
@@ -277,7 +194,32 @@ int getMavlink(String request) {
 }
 
 int incomingSMS(String info) {
-	infoSMS = info.toInt();
-	stateSMS = 1;
+	switch(stateSMS) {
+		case 0:
+			//string seperating to determin order req
+			orderReq = "5x Ebola Vaccines";
+			isMsgSent = false;
+			orderNum++;
+			twilioCMsg = "Order #" + String(orderNum) + " Recieved:\n| " + orderReq + " |\nPlease standby";
+			twilioHMsg = "Place Order #" + String(orderNum) + "\n| " + orderReq + " |\nIn drone: #"+ String(droneNum) + "\nSend YES when loaded";
+			stateSMS = 1;
+			break;
+		case 1:
+			if (info.toLowerCase() == "yes") {
+				Serial1.println("!");
+				twilioHMsg = "Scan authorization tag";
+				stateSMS = 2;
+				isMsgSent = false;
+			}
+			break;
+		case 3:
+			if (info.toLowerCase() == "yes") {
+				isMsgSent = false;
+				twilioHMsg = "Order #" + String(orderNum) + " Sent";
+				twilioCMsg = "Your Order #" + String(orderNum) + "\n| " + orderReq + " |\nHas departed. ETA " + String(eta) + " mins";
+				stateSMS = 4;
+			}
+			break;
+	}
 	return 1;
 }

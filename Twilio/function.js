@@ -92,7 +92,7 @@ function callParticle(info) {
 //             callback(null, twiml);
 //         }
 //         console.log(`statusCode: ${res.statusCode} ${body}`);
-//         if (res.statusCode == "400") {
+//         if (res.statusCode == 400) {
 //             twiml.message(`Error: ${body.error}. Try again`);
 //             callback(null, twiml);
 //         }
