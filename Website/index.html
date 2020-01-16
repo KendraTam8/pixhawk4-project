@@ -17,51 +17,85 @@
 				<img src="Images/Aerlift Logo Long (Gradient).png" alt="Aerlift Logo" class="resize"> 
 			</div>
 			<div class="hItem2">
-				<h1 class="title"> Flight Data </h1>
+				<h1 class="title"> FLIGHT DATA </h1>
 			</div>
 			<div class="hItem3" id="container">
 				<button type="button" id="get" class="getButton hvr-fade" onclick="callAPI()"> Get data </button>
 			</div>
 		</div>
+
+		<div class="infoWrapper">
+			<div class="info">
+				<div class="item" id = "infoText">
+					<div class="text">
+						<p><b>Drone #</b>: 5 </p>
+					</div>
+					<div class="text">
+						<p><b>Delivery #</b>: 0001 </p>
+					</div>
+					<div class="text">
+						<p><b>Take Off</b>: Hospital A </p>
+					</div>
+					<div class="text">
+						<p><b>Destination</b>: Hospital B </p>
+					</div>
+					<div class="text">
+						<p><b>Contents</b>: 5 Ebola Vaccines </p>
+					</div>
+					<div class="text">
+						<p><b>Flight Time</b>: 5 mins </p>
+					</div>
+					<div class="text"v>
+						<p><b>ETA</b>: 5 mins </p>
+					</div>
+				</div>
+				<div class="item">
+					<div id="map"></div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="line"></div>
+
 		<div class="content">
-			<div class="cItem">
-				<p> Battery </p>
+			<div class="item">
+				<h2> Battery </h2>
 				<table>
 					<tr>
 						<td class="dataName">Voltage Battery</td>
-						<td class="dataValue" id="voltage"></td>
+						<td id="voltage"></td>
 					</tr>
 					<tr>
 						<td class="dataName">Battery Remaining</td>
-						<td class="dataValue" id="battery"></td>
+						<td id="battery"></td>
 					</tr>
 				</table>
 			</div>
 			
-			<div class="cItem">
-				<p> GPS </p>
+			<div class="item">
+				<h2> GPS </h2>
 				<table>
 					<tr>
 						<td class="dataName">Latitude</td>
-						<td class="dataValue" id="gpsLat"></td>
+						<td id="gpsLat"></td>
 					</tr>
 					<tr>
 						<td class="dataName">Longitude</td>
-						<td class="dataValue" id="gpsLong"></td>
+						<td id="gpsLong"></td>
 					</tr>
 					<tr>
 						<td class="dataName">Satellites Visible</td>
-						<td class="dataValue" id="gpsSatsVis"></td>
+						<td id="gpsSatsVis"></td>
 					</tr>
 					<tr>
 						<td class="dataName">Altitude</td>
-						<td class="dataValue" id="altitude"></td>
+						<td id="altitude"></td>
 					</tr>
 				</table>
 			</div>
 
-			<div class="cItem">
-				<p> Attitude </p>
+			<div class="item">
+				<h2> Attitude </h2>
 				<table>
 					<tr>
 						<td class="dataName">Roll</td>
@@ -78,35 +112,30 @@
 				</table>
 			</div>
 	
-			<div class="cItem">
-				<p> Mission Current </p>
+			<div class="item">
+				<h2> Mission Current </h2>
 				<table>
 					<tr>
 						<td class="dataName">Sequence</td>
-						<td class="dataValue" id="missionCurrent"></td>
+						<td id="missionCurrent"></td>
 					</tr>
 				</table>
 			</div>
 			
-			<div class="cItem">
-				<p> VFR HUD </p>
+			<div class="item">
+				<h2> VFR HUD </h2>
 				<table>
 					<tr>
 						<td class="dataName">Airspeed</td>
-						<td class="dataValue" id="airspeed"></td>
+						<td id="airspeed"></td>
 					</tr>
 					<tr>
 						<td class="dataName">Heading</td>
-						<td class="dataValue" id="heading"></td>
+						<td id="heading"></td>
 					</tr>
 				</table>
 			</div>
 			
-		</div>
-		
-		<div class="mapWrapper">
-			<p> Map </p>
-			<div id="map"></div>
 		</div>
 	</body>
 </html>

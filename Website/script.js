@@ -85,7 +85,9 @@ function getParticleVar(vrPr, info) {
 function refreshMap() {
     var map = new google.maps.Map(document.getElementById('map'), {
         center: {lat: latitiude, lng: longitude},
-        zoom: 15
+        zoom: 15,
+        controlSize: 25,
+        mapTypeId: google.maps.MapTypeId.HYBRID
     });
 
     if (validCoordinates) {
@@ -98,5 +100,5 @@ function refreshMap() {
         marker.setMap(map);
     }
     validCoordinates = true;
-}
 
+}
