@@ -53,9 +53,11 @@ void loop() {
 
   char infoRequest = mySerial.read();
   if (infoRequest == '*') {
-    boron_request();
+    website_request();
   }
-
+  else if (infoRequest == '!'){
+    twilio_request();
+  }
 
   if (true || state != ACCEPT) {
     // Reset the loop if no new card present on the sensor/reader. This saves the entire process when idle.
@@ -269,7 +271,7 @@ void comm_receive() {
   }
 }
 
-void boron_request() {
+void website_request() {
   //sys
   mySerial.print(VOLT);mySerial.print(":0|");mySerial.println(voltage);
   mySerial.print(BATT_REMAIN);mySerial.print(":1|");mySerial.println(battery);
@@ -291,4 +293,8 @@ void boron_request() {
   //vfr
   mySerial.print(VFR_AIRSPEED);mySerial.print(":10|");mySerial.println(airspeed);
   mySerial.print(VFR_HEAD);mySerial.print(":11|");mySerial.println(heading);
+}
+
+void twilio_request() {
+  mySerial.print("1");
 }
